@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
-import { Box, Button, Container, Grid, TextField, Typography, Alert, InputAdornment, IconButton } from '@mui/material';
+import { Box, Button, Container, Grid, TextField, Typography, InputAdornment, IconButton } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { loginUser } from '../../Api/loginApi';
+import { useAuth } from '../../Context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Login: React.FC = () => {
+  const { login } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<any>({});
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showForgotPassword, setShowForgotPassword] = useState<boolean>(false);
 
@@ -27,17 +32,27 @@ const Login: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    if (email === 'user@example.com' && password === 'password') {
-      alert('Login successful');
-    } else {
-      setError('Invalid email or password');
-    }
+    const formData = {
+      email: email,
+      password: password
+    };
+    loginUser(formData)
+      .then((response) => {
+        console.log("cai aqui")
+        login(response.data);
+        navigate('/home');
+      })
+      .catch((error) => {
+        setError(error.response.data.errors);
+      });
   };
+  console.log(error)
+
+
 
   return (
     <Grid container style={{ minHeight: '100vh' }}>
-      <Grid item xs={12} md={5} style={{ backgroundColor: '#87CEFA' }} />
+      <Grid item xs={12} md={5} style={{ backgroundColor: '#6A5ACD' }} />
       <Grid item xs={12} md={7} style={{ backgroundColor: 'white' }} container alignItems="center" justifyContent="center">
         <Container maxWidth="sm">
           <Box
@@ -53,6 +68,23 @@ const Login: React.FC = () => {
               BestTv
             </Typography>
             <form onSubmit={handleSubmit}>
+              {/* Mensagem de Erro Geral (erro.algo)*/}
+              {error.erro && (
+                <Typography
+                  color="#DF2C0F"
+                  sx={{
+                    wordWrap: "break-word",
+                    fontSize: "1.125rem",
+                    display: "block",
+                    textAlign: "center",
+                    fontWeight: 400,
+                    marginTop: "5%",
+                  }}
+                >
+                  {error.erro}
+                </Typography>
+              )}
+
               {/* Campo de Email */}
               <Typography
                 variant="h6"
@@ -82,6 +114,22 @@ const Login: React.FC = () => {
                   style: { minHeight: "2.813rem", borderRadius: 12 },
                 }}
               />
+              {/* Mensagem de Erro para Email (erro.algo) */}
+              {error.Email && (
+                <Typography
+                  color="#DF2C0F"
+                  sx={{
+                    fontSize: "1rem",
+                    display: "flex",
+                    alignItems: "center",
+                    fontWeight: 400,
+                    marginTop: "2%",
+                    "@media (max-width: 1360px)": { fontSize: "0.75rem" },
+                  }}
+                >
+                  {error.Email}
+                </Typography>
+              )}
 
               {/* Campo de Senha */}
               <Typography
@@ -126,9 +174,27 @@ const Login: React.FC = () => {
                   ),
                 }}
               />
+              {error.Password && (
+                <Typography
+                  color="#DF2C0F"
+                  sx={{
+                    fontSize: "1rem",
+                    display: "flex",
+                    alignItems: "center",
+                    fontWeight: 400,
+                    marginTop: "2%",
+                    "@media (max-width: 1360px)": { fontSize: "0.75rem" },
+                  }}
+                >
+                  {error.Password}
+                </Typography>
+              )}
+
+              {/* Botão login */}
               <Button type="submit" variant="contained" color="primary" fullWidth>
                 Login
               </Button>
+
               {/* Esqueci minha senha */}
               <Typography
                 variant="body1"
@@ -146,6 +212,8 @@ const Login: React.FC = () => {
               >
                 Esqueci minha senha
               </Typography>
+
+              {/* Botão criar conta */}
               <Button type="submit" variant="contained" color="success" fullWidth>
                 Criar conta
               </Button>

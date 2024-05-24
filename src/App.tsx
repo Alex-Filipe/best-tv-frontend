@@ -1,14 +1,18 @@
 import React from 'react';
 import './App.css';
 import Login from './Pages/Login/Login';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { AuthProvider } from './Context/AuthContext';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <Login />
-      </header>
-    </div>
+    <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Login />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
   );
 }
 
