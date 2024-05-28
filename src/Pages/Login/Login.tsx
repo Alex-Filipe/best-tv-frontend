@@ -8,76 +8,42 @@ import { useNavigate } from 'react-router-dom';
 const Login: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [name, setName] = useState<string>('');
-  const [birthDate, setBirthDate] = useState<string>('');
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    name: '',
+    birthDate: ''
+  });
   const [error, setError] = useState<any>({});
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [showForgotPassword, setShowForgotPassword] = useState<boolean>(false);
-  const [showCreateAccount, setShowCreateAccount] = useState<boolean>(false);
-  const [showLogin, setShowLogin] = useState<boolean>(true);
+  const [view, setView] = useState<'login' | 'createAccount' | 'forgotPassword'>('login');
 
-
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-  };
-
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-  };
-
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setName(e.target.value);
-  };
-
-  const handleBirthDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setBirthDate(e.target.value);
-  };
 
   const handleTogglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleShowForgotPassword = () => {
-    setShowForgotPassword(true);
-    setShowLogin(false);
-    setShowCreateAccount(false);
-    setName("");
-    setEmail("");
-    setPassword("");
-    setBirthDate("");
+  const switchView = (newView: 'login' | 'createAccount' | 'forgotPassword') => {
+    setView(newView);
+    setFormData({ email: '', password: '', name: '', birthDate: '' });
+    setError({});
   };
 
-  const handleShowCreateAccount = () => {
-    setShowCreateAccount(!showForgotPassword);
-    setShowLogin(false);
-    setShowForgotPassword(false);
-    setName("");
-    setEmail("");
-    setPassword("");
-    setBirthDate("");
-  };
-
-  const handleShowLoginAccount = () => {
-    setShowLogin(true);
-    setShowForgotPassword(false);
-    setShowCreateAccount(false);
-    setName("");
-    setEmail("");
-    setPassword("");
-    setBirthDate("");
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const formData = {
-      email: email,
-      password: password
+    const data = {
+      email: formData.email,
+      password: formData.password
     };
-    loginUser(formData)
+    loginUser(data)
       .then((response) => {
-        console.log("cai aqui")
         login(response.data);
         navigate('/home');
       })
@@ -88,15 +54,15 @@ const Login: React.FC = () => {
 
   const handleSubmitCreateAccount = (e: React.FormEvent) => {
     e.preventDefault();
-    const formData = {
-      name: name,
-      email: email,
-      password: password,
-      dateBirth: birthDate
+    const data = {
+      name: formData.name,
+      email: formData.email,
+      password: formData.password,
+      dateBirth: formData.birthDate
     };
-    createAccountUser(formData)
+    createAccountUser(data)
       .then((response) => {
-        handleShowLoginAccount();
+        switchView('login');
         navigate('/');
       })
       .catch((error) => {
@@ -121,8 +87,8 @@ const Login: React.FC = () => {
             <Typography variant="h4" component="h1" color="black" gutterBottom>
               BestTv
             </Typography>
-            {showLogin &&
-              <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "80%" }}>
+            {view === "login" &&
+              <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", width: "80%" }}>
                 {/* Mensagem de Erro Geral (erro.algo)*/}
                 {error.erro && (
                   <Typography
@@ -161,8 +127,9 @@ const Login: React.FC = () => {
                   placeholder="Digite aqui seu e-mail"
                   type="email"
                   fullWidth
-                  value={email}
-                  onChange={handleEmailChange}
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
                   required
                   inputProps={{ maxLength: 255 }}
                   InputProps={{
@@ -207,8 +174,9 @@ const Login: React.FC = () => {
                   placeholder="Digite sua senha aqui"
                   type={showPassword ? "text" : "password"}
                   fullWidth
-                  value={password}
-                  onChange={handlePasswordChange}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
                   required
                   inputProps={{ maxLength: 255 }}
                   InputProps={{
@@ -255,7 +223,7 @@ const Login: React.FC = () => {
                   variant="body1"
                   marginTop="6%"
                   marginBottom="6%"
-                  onClick={handleShowForgotPassword}
+                  onClick={() => switchView('forgotPassword')}
                   sx={{
                     fontSize: "1.125rem",
                     color: "#3A6647",
@@ -269,12 +237,12 @@ const Login: React.FC = () => {
                 </Typography>
 
                 {/* Botão criar conta */}
-                <Button onClick={handleShowCreateAccount} variant="contained" color="primary" fullWidth>
+                <Button onClick={() => switchView('createAccount')} variant="contained" color="primary" fullWidth>
                   Criar conta
                 </Button>
               </form>
             }
-            {showCreateAccount &&
+            {view === "createAccount" &&
               <form onSubmit={handleSubmitCreateAccount} style={{ display: "flex", flexDirection: "column", width: "80%" }}>
                 {/* Mensagem de Erro Geral (erro.algo)*/}
                 {error.erro && (
@@ -314,8 +282,9 @@ const Login: React.FC = () => {
                   placeholder="Digite seu nome"
                   type="text"
                   fullWidth
-                  value={name}
-                  onChange={handleNameChange}
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
                   required
                   inputProps={{ maxLength: 255 }}
                   InputProps={{
@@ -360,8 +329,9 @@ const Login: React.FC = () => {
                   placeholder="Digite aqui seu e-mail"
                   type="email"
                   fullWidth
-                  value={email}
-                  onChange={handleEmailChange}
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
                   required
                   inputProps={{ maxLength: 255 }}
                   InputProps={{
@@ -406,8 +376,9 @@ const Login: React.FC = () => {
                   placeholder="Digite sua senha aqui"
                   type={showPassword ? "text" : "password"}
                   fullWidth
-                  value={password}
-                  onChange={handlePasswordChange}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
                   required
                   inputProps={{ maxLength: 255 }}
                   InputProps={{
@@ -464,8 +435,9 @@ const Login: React.FC = () => {
                   variant="outlined"
                   type="date"
                   fullWidth
-                  value={birthDate}
-                  onChange={handleBirthDateChange}
+                  name="birthDate"
+                  value={formData.birthDate}
+                  onChange={handleChange}
                   required
                   InputProps={{
                     style: { minHeight: "2.813rem", borderRadius: 12 },
@@ -495,7 +467,7 @@ const Login: React.FC = () => {
                   </Button>
 
                   {/* Botão criar conta */}
-                  <Button onClick={handleShowLoginAccount} variant="contained" color="primary" style={{ width: "75%", marginTop: "6%", alignItems: "center" }}>
+                  <Button onClick={() => switchView('login')} variant="contained" color="primary" style={{ width: "75%", marginTop: "6%", alignItems: "center" }}>
                     Voltar
                   </Button>
                 </div>
