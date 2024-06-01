@@ -17,7 +17,7 @@ export const loginUser = async (user: User): Promise<any> => {
 
   const options = {
     method: 'POST',
-    url: `${apiUrl}/auth/login`,
+    url: `${apiUrl}/login`,
     headers: {
       'Content-Type': 'application/json'
     },

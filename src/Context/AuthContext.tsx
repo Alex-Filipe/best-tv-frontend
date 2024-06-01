@@ -1,12 +1,12 @@
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
 
 interface UserData {
-  user: any; // Coloque o tipo correto do objeto usuário
+  user: any;
   token: string | null;
 }
 
 interface AuthContextType {
-  user: any; // Coloque o tipo correto do objeto usuário
+  user: any;
   token: string | null;
   login: (userData: UserData) => void;
   logout: () => void;
@@ -40,7 +40,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = (userData: UserData) => {
     const { user, token } = userData;
     localStorage.setItem('user', JSON.stringify(user));
-    localStorage.setItem('token', token || ''); // Se token for null, passa uma string vazia
+    localStorage.setItem('token', token || '');
     setUser(user);
     setToken(token);
   };

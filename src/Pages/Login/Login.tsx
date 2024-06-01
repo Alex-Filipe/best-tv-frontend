@@ -44,7 +44,7 @@ const Login: React.FC = () => {
     };
     loginUser(data)
       .then((response) => {
-        login(response.data);
+        login(response);
         navigate('/home');
       })
       .catch((error) => {

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Button, Container, TextField, Typography } from '@mui/material';
 import { useAuth } from '../../Context/AuthContext';
+import { fetchUserProfiles } from '../../Api/roleApi';
 
 interface Profile {
   id: number;
@@ -12,24 +13,25 @@ const Home: React.FC = () => {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [newProfileName, setNewProfileName] = useState('');
 
-//   useEffect(() => {
-//     // Função para buscar perfis do usuário
-//     const fetchProfiles = async () => {
-//       // Aqui você faria a requisição para sua API para buscar os perfis
-//       const response = await fetch('/api/profiles', {
-//         headers: {
-//           'Authorization': `Bearer ${token}`
-//         }
-//       });
-//       const data = await response.json();
-//       setProfiles(data);
-//     };
+  // GET de Perfis da conta
+  useEffect(() => {
+    const fetchProfiles = async () => {
+      if (user?.user_id && token) {
+        try {
+          const data = await fetchUserProfiles(user.user_id, token);
+          setProfiles(data);
+        } catch (error) {
+          console.error('Error fetching profiles:', error);
+        }
+      } else {
+        console.warn('User ID or token is missing');
+      }
+    };
 
-//     fetchProfiles();
-//   }, [token]);
+    fetchProfiles();
+  }, [token, user?.user_id]);
 
   const handleCreateProfile = async () => {
-    // Função para criar um novo perfil
     // const response = await fetch('/api/profiles', {
     //   method: 'POST',
     //   headers: {
@@ -49,7 +51,7 @@ const Home: React.FC = () => {
   return (
     <Container>
       <Typography variant="h4" component="h1" gutterBottom>
-        {/* Bem-vindo, {user.name}! */}
+        Selecione um perfil para continuar.
       </Typography>
       <Box mt={4}>
         {profiles.length > 0 ? (
